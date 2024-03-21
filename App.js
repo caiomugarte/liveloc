@@ -4,6 +4,8 @@ import { StyleSheet, View, Button } from 'react-native';
 
 export default function App() {
   const [mapUrl, setMapUrl] = useState(null);
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
 
   const getLocation = () => {
     console.log("cliquei")
@@ -21,6 +23,8 @@ export default function App() {
 
     // Set the new map URL
     setMapUrl(newMapUrl);
+    setLatitude(latitude);
+    setLongitude(longitude);
   };
 
   const error = (erro) => {
@@ -36,6 +40,12 @@ export default function App() {
           src={mapUrl}
           style={styles.map}
         />
+      )}
+      {latitude && (
+        <h1>Sua latitude é {latitude}</h1>
+      )}
+      {longitude && (
+        <h1>Sua longitude é {longitude}</h1>
       )}
       <StatusBar style="auto" />  
     </View>

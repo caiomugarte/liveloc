@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@expo/webpack-config": "~19.0.1",
+    "dotenv": "^16.4.5",
     "expo": "~50.0.14",
     "expo-status-bar": "~1.11.1",
+    "express": "^4.19.1",
+    "mongoose": "^8.2.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.73.6",
@@ -21,5 +24,9 @@
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-  "private": true
+  "private": true,
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

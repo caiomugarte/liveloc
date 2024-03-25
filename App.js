@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Button } from 'react-native';
 
@@ -6,20 +6,35 @@ export default function App() {
   const [mapUrl, setMapUrl] = useState(null);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
+  const [intervalId, setIntervalId] = useState(false);
+
+
+  const handleButonClick = () => {
+    getLocation();
+
+    const id = setInterval(() => {
+      getLocation();
+    }, 5000)
+    setIntervalId(id);
+  }
+
+  const handleStopClick = () => {
+    clearInterval(intervalId);
+    setInterval(null);
+  }
 
   const getLocation = () => {
     console.log("cliquei")
     navigator.geolocation.getCurrentPosition(success, error);
-
   };
 
   const success = (position) => {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
+    const latitude = position.coords.latitude + getRandomNumber(-0.005, 0.005);
+    const longitude = position.coords.longitude + getRandomNumber(-0.005, 0.005);
     console.log("deu certo")
 
     // Dynamically generate the map URL with latitude and longitude as markers
-    const newMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.1}%2C${latitude - 0.1}%2C${longitude + 0.1}%2C${latitude + 0.1}&layer=mapnik&marker=${latitude}%2C${longitude}`;
+    const newMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude}%2C${latitude}%2C${longitude}%2C${latitude}&layer=mapnik&marker=${latitude}%2C${longitude}`;
 
     // Set the new map URL
     setMapUrl(newMapUrl);
@@ -34,7 +49,8 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Button onPress={getLocation} title="Get my location" />
+      <Button onPress={handleButonClick} title="Get my location" />
+      <Button onPress={handleStopClick} title='STOP'></Button>
       {mapUrl && (
         <iframe
           src={mapUrl}
@@ -66,3 +82,7 @@ const styles = StyleSheet.create({
     borderColor: 'black', // Border color
   },
 });
+
+const getRandomNumber = (min, max) => {
+  return Math.random() * (max-min) + min;
+}

@@ -4,6 +4,7 @@ import { StyleSheet, View, Button } from 'react-native';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import { Icon } from "leaflet";
 import './App.css';
+import axios from 'axios'
 
 
 
@@ -12,7 +13,6 @@ export default function App() {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [intervalId, setIntervalId] = useState(false);
-  const [position, setPosition] = useState(null);
 
   const handleButonClick = () => {
     getLocation();
@@ -34,9 +34,8 @@ export default function App() {
   };
 
   const success = (position) => {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    console.log("deu certo")
+    const latitude = position.coords.latitude + getRandomNumber(-0.005, 0.005);
+    const longitude = position.coords.longitude + getRandomNumber(-0.005, 0.005);
 
     // Dynamically generate the map URL with latitude and longitude as markers
     const newMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude}%2C${latitude}%2C${longitude}%2C${latitude}&layer=mapnik&marker=${latitude}%2C${longitude}`;
@@ -45,7 +44,16 @@ export default function App() {
     setMapUrl(newMapUrl);
     setLatitude(latitude);
     setLongitude(longitude);
-    setPosition([latitude, longitude])
+
+    axios.post('http://localhost:8082/api/posicao', {
+      latitude, 
+      longitude
+    }).then(response => {
+      console.log("Posição salva com sucesso: ", response.data)
+    })
+    .catch(err => {
+      console.log("Ocorreu um erro: ", err);
+    })
   };
 
   const error = (erro) => {
@@ -61,14 +69,8 @@ export default function App() {
   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
   crossorigin=""
 />
-      <Button onPress={getLocation} title="Get my location" />
-      {/* <Button onPress={handleStopClick} title='STOP'></Button> */}
-      {mapUrl && (
-        <iframe
-          src={mapUrl}
-          style={styles.map}
-        />
-      )}
+      <Button onPress={handleButonClick} title="Get my location" />
+      <Button onPress={handleStopClick} title='STOP'></Button>
       {latitude && (
         <h1>Sua latitude é {latitude}</h1>
       )}
@@ -86,7 +88,7 @@ export default function App() {
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>
-        <Circle center={[latitude, longitude]} radius={500} />
+        <Circle center={[latitude, longitude]} radius={500} /> #esse radius é em metros.
       </MapContainer>
       )}
       <StatusBar style="auto" />  

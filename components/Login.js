@@ -14,8 +14,10 @@ import {
   extendTheme,
 } from "native-base";
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({navigation}) {
+
   const handleLogin = () => {
     axios.post("http://localhost:8082/api/login", {
       name: usuario,
@@ -24,7 +26,16 @@ export default function Login({navigation}) {
     .then(response => {
       if(response.status == 200){
         console.log('Logado com sucesso');
-        navigation.navigate('Home');
+        const token = response.data.token;
+        AsyncStorage.setItem('token', token)
+        const userType = response.data.user.tipo;
+        AsyncStorage.setItem('papelUsuario', userType);
+
+        if(userType === 0) {
+          navigation.navigate('HomeUsuario');
+        }else {
+          navigation.navigate('HomeFuncionario');
+        }
       }else{
         console.log("Não foi possível logar seu usuário");
       }
@@ -74,7 +85,7 @@ export default function Login({navigation}) {
             </Button>
           </VStack>
         </Box>
-        <Button onPress={() => navigation.navigate('Home')}>Go to Home</Button>
-      </Center>
+{/*         <Button onPress={() => navigation.navigate('Home')}>Go to Home</Button>
+ */}      </Center>
   );
 }

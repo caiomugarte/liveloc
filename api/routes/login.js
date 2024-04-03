@@ -1,4 +1,7 @@
 const express = require("express");
+const jwt = require("jsonwebtoken")
+require('dotenv').config();
+
 const router = express.Router();
 
 const User = require("../models/user");
@@ -6,12 +9,14 @@ const User = require("../models/user");
 router.post('/api/login', async(req, res) => {
     try {
         console.log(`req.body: ${req.body}`)
-        const {name, password} = req.body
-        console.log(`Peguei o nome ${name} e a password ${password}`)
-        const user = await User.findOne({name, password});
+        const {username, senha} = req.body
+        console.log(`Peguei o username ${username} e a senha ${senha}`)
+        const user = await User.findOne({name: username, password: senha});
 
         if(user) {
-            return res.status(200).json({message: "Logado com sucesso", user})
+            const secretKey = process.env.SECRET_KEY
+            const token = jwt.sign({userId: user.id, username: user.username}, secretKey, {expiresIn: '1h'});
+            return res.status(200).json({message: "Logado com sucesso", token, user})
         }else{
             return res.status(404).json({message: "User not found"});
         }

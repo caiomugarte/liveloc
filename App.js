@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -7,10 +7,56 @@ import Home from './components/Home';
 import Lote from './components/Lote';
 import Login from './components/Login';
 import { NativeBaseProvider, extendTheme } from 'native-base';
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { useState } from 'react';
+import HomeUsuario from './components/HomeUsuario';
+import {jwtDecode} from 'jwt-decode'
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [rotaInicial, setRotaInicial] = useState(null);
+  const [userObject, setUserObject] = useState(null);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if(!token) {
+          setRotaInicial('Login');
+          return;
+        }
+
+        const decodedToken = jwtDecode(token);
+        setUserObject(decodedToken);
+        const currentTime = Math.floor(Date.now()/1000);
+
+
+        if(decodedToken.exp < currentTime){
+          setRotaInicial('Login');
+        }else{
+          await redirectUser();
+        }
+
+      } catch (error) {
+        console.log("Ocorreu um erro ao pegar o token; ", error);
+        setRotaInicial('Login');
+      }
+
+      async function redirectUser() {
+        const papelUsuario = await AsyncStorage.getItem('papelUsuario');
+        if (papelUsuario == 0) {
+          setRotaInicial('HomeUsuario');
+        } else if (papelUsuario == 1) {
+          setRotaInicial('HomeFuncionario');
+        } else {
+          setRotaInicial('Login');
+        }
+      }
+    }
+
+    checkToken();
+  }, []);
 
   const theme = extendTheme({
     colors: {
@@ -37,32 +83,15 @@ export default function App() {
 
   return (
     <NativeBaseProvider theme={theme}>
+      {rotaInicial !== null && (
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name='Login' component={Login} options={{title:"Login"}}/>
+        <Stack.Navigator initialRouteName={rotaInicial}>
+          <Stack.Screen name='Login' component={Login} options={{title:"Login", headerShown: false}}/>
           <Stack.Screen name='Home' component={Home} options={{title:"Welcome"}}/>
+          <Stack.Screen name='HomeUsuario' component={HomeUsuario} initialParams={{userObject: userObject}} options={{title:"Bem-Vindo", headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
-      {/* <NativeRouter>
-      <View>
-        <View>
-          <Link to="/">
-            <Text>Home</Text>
-          </Link>
-          <Link to="/lote">
-            <Text>Lote</Text>
-          </Link>
-          <Link to="/login">
-            <Text>Login</Text>
-          </Link>
-        </View>
-        <Routes>
-          <Route exact path="/" element={<Home/>} />
-          <Route path="/lote" element={<Lote/>} />
-          <Route path="/login" element={<Login/>} />
-        </Routes>
-      </View>
-    </NativeRouter> */}
+      )}
   </NativeBaseProvider>
   );
 }

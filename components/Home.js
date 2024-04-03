@@ -4,9 +4,10 @@ import { StyleSheet, View, Button } from 'react-native';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import '../App.css';
 import axios from 'axios'
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 
-export default function Home() {
+export default function Home({navigation}) {
   const [mapUrl, setMapUrl] = useState(null);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -90,6 +91,7 @@ export default function Home() {
       </MapContainer>
       )}
       <StatusBar style="auto" />  
+      <Button title="Logout" onPress={handleLogout} />
     </View>
   );
 }
@@ -111,4 +113,13 @@ const styles = StyleSheet.create({
 
 const getRandomNumber = (min, max) => {
   return Math.random() * (max-min) + min;
+}
+
+const handleLogout = async () => {
+  try {
+    await AsyncStorage.removeItem('token');
+    navigation.navigate('Login');
+  } catch (error) {
+    console.log('Erro ao deslogar:', error);
+  }
 }

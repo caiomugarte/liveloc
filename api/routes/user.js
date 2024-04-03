@@ -7,31 +7,26 @@ router.post('/post', async(req, res) => {
     try {
         console.log(`req.body: ${req.body}`)
         console.log("testando de verdade agora")
-        const {name, password} = req.body
-        console.log(`Peguei o nome ${name} e a password ${password}`)
-        if(name === 'admin' && password === 'admin') {
-            return res.status(200).json('Welcome to the admin page');
-        }
+        const {name: username, password: senha, tipo} = req.body
+        console.log(`Peguei o nome ${username} e a password ${senha} e o tipo ${tipo}`)
 
-        console.log('não é admin')
-    
-        if(!(name && password)){
+        if(!(username && senha && typeof tipo === "number")){
             return res.status(200).json('Preencha os campos');
         }
     
-        const checkUser = await User.findOne({name, password});
+        const checkUser = await User.findOne({username, senha});
     
         if(checkUser) {
             return res.status(409).json({
                 message: 'Usuário já existe',
             })
         }
-        const user = new User({name, password})
-        await user.save();
+        const usuario = new User({username, senha, tipo})
+        await usuario.save();
     
         return res.status(201).json({
             message:"Usuário criado com sucesso",
-            user
+            usuario
         })
     } catch (error) {
         console.log(error);

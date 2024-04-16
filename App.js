@@ -11,9 +11,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { useState } from 'react';
 import HomeUsuario from './components/HomeUsuario';
 import {jwtDecode} from 'jwt-decode'
+import HomeFuncionario from './components/HomeFuncionario';
+
 
 const Stack = createNativeStackNavigator();
-
 export default function App() {
   const [rotaInicial, setRotaInicial] = useState(null);
   const [userObject, setUserObject] = useState(null);
@@ -89,6 +90,7 @@ export default function App() {
           <Stack.Screen name='Login' component={Login} options={{title:"Login", headerShown: false}}/>
           <Stack.Screen name='Home' component={Home} options={{title:"Welcome"}}/>
           <Stack.Screen name='HomeUsuario' component={HomeUsuario} initialParams={{userObject: userObject}} options={{title:"Bem-Vindo", headerShown: false}}/>
+          <Stack.Screen name='HomeFuncionario' component={HomeFuncionario} initialParams={{userObject: userObject}} options={{title:"Bem-Vindo", headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
       )}

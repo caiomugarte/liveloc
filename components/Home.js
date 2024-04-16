@@ -117,7 +117,7 @@ const getRandomNumber = (min, max) => {
 
 const handleLogout = async () => {
   try {
-    await AsyncStorage.removeItem('token');
+    await AsyncStorage.clear();
     navigation.navigate('Login');
   } catch (error) {
     console.log('Erro ao deslogar:', error);

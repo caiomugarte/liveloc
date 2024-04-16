@@ -20,8 +20,8 @@ export default function Login({navigation}) {
 
   const handleLogin = () => {
     axios.post("http://localhost:8082/api/login", {
-      name: usuario,
-      password: senha
+      username: usuario,
+      senha: senha
     })
     .then(response => {
       if(response.status == 200){

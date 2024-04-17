@@ -7,10 +7,10 @@ router.post('/post', async(req, res) => {
     try {
         console.log(`req.body: ${req.body}`)
         console.log("testando de verdade agora")
-        const {name: username, password: senha, tipo} = req.body
+        const {username, senha, tipo, nome} = req.body
         console.log(`Peguei o nome ${username} e a password ${senha} e o tipo ${tipo}`)
 
-        if(!(username && senha && typeof tipo === "number")){
+        if(!(username && senha && typeof tipo === "number" && nome)){
             return res.status(200).json('Preencha os campos');
         }
     
@@ -21,7 +21,7 @@ router.post('/post', async(req, res) => {
                 message: 'Usuário já existe',
             })
         }
-        const usuario = new User({username, senha, tipo})
+        const usuario = new User({username, senha, tipo, nome})
         await usuario.save();
     
         return res.status(201).json({

@@ -19,6 +19,10 @@ const userSchema = new Schema(
         },
         deviceId: {
             type:String,
+        },
+        nome: {
+            type:String, 
+            required:true
         }
     },
     {

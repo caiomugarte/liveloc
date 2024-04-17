@@ -12,6 +12,7 @@ import { useState } from 'react';
 import HomeUsuario from './components/HomeUsuario';
 import {jwtDecode} from 'jwt-decode'
 import HomeFuncionario from './components/HomeFuncionario';
+import LoteTagueado from './components/LoteTagueado';
 
 
 const Stack = createNativeStackNavigator();
@@ -22,6 +23,12 @@ export default function App() {
   useEffect(() => {
     const checkToken = async () => {
       try {
+        const fromQRCode = new URLSearchParams(window.location.search).get('fromQRCode') === 'true';  
+
+        if(fromQRCode) {
+          return;
+        }
+
         const token = await AsyncStorage.getItem('token');
         if(!token) {
           setRotaInicial('Login');
@@ -85,15 +92,25 @@ export default function App() {
   return (
     <NativeBaseProvider theme={theme}>
       {rotaInicial !== null && (
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <Stack.Navigator initialRouteName={rotaInicial}>
           <Stack.Screen name='Login' component={Login} options={{title:"Login", headerShown: false}}/>
           <Stack.Screen name='Home' component={Home} options={{title:"Welcome"}}/>
           <Stack.Screen name='HomeUsuario' component={HomeUsuario} initialParams={{userObject: userObject}} options={{title:"Bem-Vindo", headerShown: false}}/>
           <Stack.Screen name='HomeFuncionario' component={HomeFuncionario} initialParams={{userObject: userObject}} options={{title:"Bem-Vindo", headerShown: false}}/>
+          <Stack.Screen name="LoteTagueado" component={LoteTagueado} options={{headerShown: false}}></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
       )}
   </NativeBaseProvider>
   );
 }
+
+const linking = {
+  config: {
+    screens: {
+      Home: 'home',
+      LoteTagueado: 'lote-tagueado'
+    },
+  },
+};

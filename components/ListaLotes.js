@@ -16,6 +16,9 @@ export default function ListaLotes() {
   const [showModalArray, setShowModalArray] = useState([]);
   const [selectedFuncionario, setSelectedFuncionario] = useState(null);
   const [funcionarios, setFuncionarios] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState({});
+
   useEffect(() => {
     const fetchLotes = async () => {
       try {
@@ -31,17 +34,12 @@ export default function ListaLotes() {
       try {
         const response = await fetch("http://localhost:8082/api/usuarios");
         const data = await response.json();
-        let funcionarios = [];
-        for (let usuario of data.usuarios){
-          if(usuario.tipo === 1){
-            funcionarios.push(usuario);
-          }
-        }
-        setFuncionarios(funcionarios);
+        setFuncionarios(data.usuarios.filter(usuario => usuario.tipo === 1));
       } catch (error) {
         console.error(error);
       }
     }
+
     fetchLotes();
     fetchFuncionarios();
   }, []);
@@ -49,6 +47,44 @@ export default function ListaLotes() {
   const handleSelectChange = (itemValue) => {
     console.log("SELECIONEI O USUÁRIO " + funcionarios[itemValue].nome);
     setSelectedFuncionario(parseInt(itemValue));
+  }
+
+  const associateFuncionarioWithLote = async (loteId) => {
+    setLoading(true);
+    try {
+      // Make API call to associate the selected funcionario with the lote
+      // Replace 'your_backend_endpoint' with the actual endpoint
+      const response = await fetch(`http://localhost:8082/api/associarFuncionario`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ funcionarioId: funcionarios[selectedFuncionario]._id , loteId: loteId})
+      });
+      if (response.ok) {
+        setSuccess(prevState => ({ ...prevState, [loteId]: true }));
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const renderButton = (loteId) => {
+    if (success[loteId]) {
+      return (
+        <Button disabled variant="success">Funcionário vinculado</Button>
+      );
+    } else if (loading) {
+      return (
+        <Button isLoading>Loading</Button>
+      );
+    } else {
+      return (
+        <Button onPress={() => associateFuncionarioWithLote(loteId)}>Associar Funcionário</Button>
+      );
+    }
   }
 
   return (
@@ -74,9 +110,9 @@ export default function ListaLotes() {
       {lotes.map((lote, index) => (
         <View key={lote._id}>
           <Center>
-            <Box>
+            <Box style={styles.loteBox}>
               <Text style={styles.item}>{lote.numeroLote}</Text>
-              <Button>Associar Funcionário</Button>
+              {renderButton(lote._id)}
             </Box>
           </Center>
         </View>
@@ -95,4 +131,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 5,
   },
+  loteBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  }
 });

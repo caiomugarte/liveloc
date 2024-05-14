@@ -10,6 +10,10 @@ const posicaoSchema = new Schema(
         longitude: {
             type: Number, 
             required: true
+        },
+        deviceId: {
+            type: String,
+            default: null
         }
     },
     {

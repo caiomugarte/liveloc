@@ -6,14 +6,14 @@ const Posicao = require("../models/posicao");
 router.post('/api/posicao', async(req, res) => {
     try {
         console.log(`req.body: ${req.body}`)
-        const {latitude, longitude} = req.body
+        const {latitude, longitude, deviceId} = req.body
         console.log(`Peguei a latitude ${latitude} e a longitude ${longitude}`)
     
         if(!(latitude && longitude)){
             return res.status(403).json('Latitude e Longitude não informados');
         }
     
-        const posicao = new Posicao({latitude, longitude})
+        const posicao = new Posicao({latitude, longitude, deviceId})
         await posicao.save();
     
         return res.status(201).json({

@@ -30,6 +30,8 @@ app.use("/", require("./routes/produto"));
 app.use("/", require("./routes/lote"));
 app.use("/", require("./routes/getLotes"));
 app.use("/", require("./routes/getUsuarios"));
+app.use("/", require("./routes/postAssociarFuncionario"));
+app.use("/", require("./routes/getPosicaoOfProduto"));
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)

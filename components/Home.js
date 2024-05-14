@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Button } from 'react-native';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import React, { useState } from 'react';
+import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Button, StyleSheet, View } from 'react-native';
 import '../App.css';
-import axios from 'axios'
-import AsyncStorage from "@react-native-async-storage/async-storage"
 
 
 export default function Home({navigation}) {
@@ -59,6 +59,8 @@ export default function Home({navigation}) {
     console.log("ocorreu um erro")
     console.log(erro)
   }
+  const position = [51.505, -0.09]
+
 
   return (
     <View style={styles.container}>

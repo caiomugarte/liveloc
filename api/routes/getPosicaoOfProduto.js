@@ -22,7 +22,8 @@ router.get('/api/posicaoOfProduto', async(req, res) => {
 
         return res.status(201).json({
             message:"Localização encontrada com sucesso",
-            localizacao
+            localizacao,
+            produto
         })
     } catch (error) {
         console.log(error);

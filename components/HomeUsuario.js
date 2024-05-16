@@ -1,10 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { Center, Box, Input, Button, IconButton, SearchIcon, Heading, Spinner, Text, View } from "native-base";
+import { Center, Box, Input, Button, IconButton, SearchIcon, Heading, Spinner, Text } from "native-base";
 import { StyleSheet } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
+import L from 'leaflet';
+import 'leaflet-routing-machine';
+import 'leaflet-control-geocoder';
+
+const MapComponent = ({ latitude, longitude, localEntrega }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (latitude !== null && longitude !== null && localEntrega !== null) {
+      const routingControl = L.Routing.control({
+        waypoints: [
+          L.latLng(latitude, longitude),
+          L.latLng(localEntrega[0], localEntrega[1])
+        ],
+        routeWhileDragging: true,
+        geocoder: L.Control.Geocoder.nominatim(),
+        createMarker: () => null, // Return null to prevent creating markers
+        show: false, // Hide the routing panel
+        collapsible: false
+        
+      }).addTo(map);
+
+      const bounds = L.latLngBounds([
+        [latitude, longitude],
+        [localEntrega[0], localEntrega[1]]
+      ]);
+      map.fitBounds(bounds);
+
+      return () => {
+        map.removeControl(routingControl);
+      };
+    }
+  }, [latitude, longitude, localEntrega, map]);
+
+  return (
+    <>
+      <Marker position={localEntrega}>
+        <Popup>
+          Local de entrega.
+        </Popup>
+      </Marker>
+      <Circle center={[latitude, longitude]} radius={50000} /> {/* Esse radius é em metros. */}
+    </>
+  );
+};
 
 export default function HomeUsuario({ navigation, route }) {
   const [loading, setLoading] = useState(true);
@@ -12,6 +56,7 @@ export default function HomeUsuario({ navigation, route }) {
   const [codigoRastreio, setCodigoRastreio] = useState("");
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
+  const [localEntrega, setLocalEntrega] = useState(null);
 
   const handleLogout = async () => {
     try {
@@ -20,7 +65,7 @@ export default function HomeUsuario({ navigation, route }) {
     } catch (error) {
       console.log('Erro ao deslogar:', error);
     }
-  }
+  };
 
   const handleChange = text => setCodigoRastreio(text);
 
@@ -28,7 +73,7 @@ export default function HomeUsuario({ navigation, route }) {
     console.log(`PESQUISEI O CODIGO DE RASTREIO ${codigoRastreio}`)
     try {
       const response = await axios.get("http://localhost:8082/api/posicaoOfProduto", {
-          params: {
+        params: {
           codigoRastreio: codigoRastreio
         }
       });
@@ -36,13 +81,12 @@ export default function HomeUsuario({ navigation, route }) {
       console.log(response.data);
       setLatitude(response.data.localizacao.latitude);
       setLongitude(response.data.localizacao.longitude);
-
-      const newMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude}%2C${latitude}%2C${longitude}%2C${latitude}&layer=mapnik&marker=${latitude}%2C${longitude}`;
+      setLocalEntrega([response.data.produto.localEntrega.latitude, response.data.produto.localEntrega.longitude]);
 
     } catch (error) {
       console.log("Erro ao pesquisar codigo de rastreio", error);
     }
-  }
+  };
 
   useEffect(() => {
     const { userObject } = route.params;
@@ -53,7 +97,6 @@ export default function HomeUsuario({ navigation, route }) {
   }, [route.params]);
 
   if (loading) {
-    // If loading, display a loading indicator
     return (
       <Center>
         <Spinner accessibilityLabel="Loading" />
@@ -62,7 +105,6 @@ export default function HomeUsuario({ navigation, route }) {
   }
 
   if (!userObject) {
-    // If userObject is still not available, display an error message
     return (
       <Center>
         <Heading>No user information available.</Heading>
@@ -70,48 +112,46 @@ export default function HomeUsuario({ navigation, route }) {
     );
   }
 
-  // If userObject is available, render user information
   return (
-    <Center w="100%" height="50%">
-    <Center>
-      <Box  w='100%' alignItems={'center'}>
-        <Heading>Bem-Vindo, {userObject.username}</Heading>
-        <Text>Encontre seu produto</Text>
-      </Box>
-      <Box alignItems="center">
-        <Input
-          w="100%"
-          variant={'rounded'}
-          py="0"
-          InputRightElement={
-            <IconButton variant={'solid'} rounded={"3xl"} icon={<SearchIcon />} onPress={handleSearch}/>
-          }
-          onChangeText={handleChange}
-          placeholder="Código de Rastreio"
-          onSubmitEditing={handleSearch}
-        />
-      </Box>
-      <Button title="Logout" onPress={() => handleLogout(navigation)} >Logout</Button>
-    </Center>
+    <Center w="100%" height="100%">
+      <Center>
+        <Box w='100%' alignItems={'center'}>
+          <Heading>Bem-Vindo, {userObject.username}</Heading>
+          <Text>Encontre seu produto</Text>
+        </Box>
+        <Box alignItems="center">
+          <Input
+            w="100%"
+            variant={'rounded'}
+            py="0"
+            InputRightElement={
+              <IconButton variant={'solid'} rounded={"3xl"} icon={<SearchIcon />} onPress={handleSearch}/>
+            }
+            onChangeText={handleChange}
+            placeholder="Código de Rastreio"
+            onSubmitEditing={handleSearch}
+          />
+        </Box>
+        <Button title="Logout" onPress={handleLogout}>Logout</Button>
+      </Center>
       <link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-  crossOrigin=""
-/>
-      {latitude != null && longitude != null && (
-        <MapContainer center={[latitude, longitude]} zoom={12}scrollWheelZoom={false}>
-        <TileLayer
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {/* <Marker position={[latitude, longitude]}>
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker> */}
-        <Circle center={[latitude, longitude]} radius={500} /> #esse radius é em metros.
-      </MapContainer>
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossOrigin=""
+      />
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"
+      />
+      {latitude != null && longitude != null && localEntrega != null && (
+        <MapContainer scrollWheelZoom={false} style={{ height: "80%", width: "80%" }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <MapComponent latitude={latitude} longitude={longitude} localEntrega={localEntrega} />
+        </MapContainer>
       )}
     </Center>
   );
@@ -125,10 +165,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   map: {
-    width: 300, // Set width
-    height: 300, // Set height
+    width: 2000, // Set width
+    height: 20, // Set height
     borderWidth: 1, // Add borders if needed
     borderColor: 'black', // Border color
   },
 });
-

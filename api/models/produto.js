@@ -26,6 +26,16 @@ const produtoSchema = new Schema(
             type: String,
             ref: 'Lote', 
             required: true
+        },
+        localEntrega: {
+            latitude: {
+                type: Number,
+                required: true
+            },
+            longitude: {
+                type: Number,
+                required: true
+            }
         }
     },
     {

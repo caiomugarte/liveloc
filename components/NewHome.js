@@ -25,7 +25,7 @@ export default function NewHome({ navigation, route }) {
   return (
     <NativeBaseProvider>
       <Box flex={1} bg="white">
-        <Header />
+        <Header navigation={navigation} />
         <VStack
           alignItems="center"
           position="relative"

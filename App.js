@@ -14,6 +14,7 @@ import NewLogin from "./components/NewLogin";
 import SearchPage from "./components/SearchPage";
 
 const Stack = createNativeStackNavigator();
+const TIPO_GESTOR_LOGISTICA = 1;
 export default function App() {
   const [rotaInicial, setRotaInicial] = useState(null);
   const [userObject, setUserObject] = useState(null);
@@ -51,9 +52,7 @@ export default function App() {
 
       async function redirectUser() {
         const papelUsuario = await AsyncStorage.getItem("papelUsuario");
-        if (papelUsuario == 0) {
-          setRotaInicial("HomeUsuario");
-        } else if (papelUsuario == 1) {
+        if (papelUsuario == TIPO_GESTOR_LOGISTICA) {
           setRotaInicial("HomeFuncionario");
         } else {
           setRotaInicial("Home");

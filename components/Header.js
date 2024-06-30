@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Box, Button, HStack, Icon, Image, Text } from "native-base";
+import { Box, Button, HStack, Icon, Image, Pressable, Text } from "native-base";
+import React from "react";
 import logo from "../assets/LogoLivelocBranca.jpeg";
 
 export default function Header({ navigation }) {
@@ -7,20 +8,22 @@ export default function Header({ navigation }) {
     navigation.navigate("newLogin");
   };
 
+  const handleHome = () => {
+    navigation.navigate("Home");
+  };
+
   return (
     <HStack
       justifyContent="space-between"
       alignItems="center"
       px={4}
-      py={0.5}
+      py={4}
       bg="white"
-      maxW="1647px"
       w="100%"
-      m="auto"
     >
       <Box
-        w="200px"
-        h="60px"
+        w="150px"
+        h="40px"
         overflow="hidden"
         justifyContent="center"
         alignItems="center"
@@ -35,9 +38,11 @@ export default function Header({ navigation }) {
         />
       </Box>
       <HStack space={4} fontFamily="Lexend, sans-serif">
-        <Text fontWeight="bold" textShadow="0px 4px 4px rgba(0, 0, 0, 0.25)">
-          Home
-        </Text>
+        <Pressable onPress={handleHome}>
+          <Text fontWeight="bold" textShadow="0px 4px 4px rgba(0, 0, 0, 0.25)">
+            Home
+          </Text>
+        </Pressable>
       </HStack>
       <HStack space={2}>
         <Button

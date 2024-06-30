@@ -43,6 +43,10 @@ export default function Login({navigation}) {
     console.log(usuario, senha);  
   }
 
+  const handleSimulacao = () => {
+    navigation.navigate("Home");
+  }
+
   const [usuario, setUsuario] = React.useState('');
   const [senha, setSenha] = React.useState('');
 
@@ -82,6 +86,9 @@ export default function Login({navigation}) {
             </FormControl>
             <Button mt="2" colorScheme='primary' onPress={handleLogin}>
               Sign in
+            </Button>
+            <Button mt="2" colorScheme='primary' onPress={handleSimulacao}>
+              simulação
             </Button>
           </VStack>
         </Box>

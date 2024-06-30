@@ -13,7 +13,7 @@ const MapComponent = ({ latitude, longitude, localEntrega }) => {
 
   useEffect(() => {
     if (latitude !== null && longitude !== null && localEntrega !== null) {
-      const routingControl = L.Routing.control({
+      /* const routingControl = L.Routing.control({
         waypoints: [
           L.latLng(latitude, longitude),
           L.latLng(localEntrega[0], localEntrega[1])
@@ -24,7 +24,7 @@ const MapComponent = ({ latitude, longitude, localEntrega }) => {
         show: false, // Hide the routing panel
         collapsible: false
         
-      }).addTo(map);
+      }).addTo(map); */
 
       const bounds = L.latLngBounds([
         [latitude, longitude],
@@ -32,9 +32,9 @@ const MapComponent = ({ latitude, longitude, localEntrega }) => {
       ]);
       map.fitBounds(bounds);
 
-      return () => {
+      /* return () => {
         map.removeControl(routingControl);
-      };
+      }; */
     }
   }, [latitude, longitude, localEntrega, map]);
 
@@ -57,15 +57,6 @@ export default function HomeUsuario({ navigation, route }) {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [localEntrega, setLocalEntrega] = useState(null);
-
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('token');
-      navigation.navigate('Login');
-    } catch (error) {
-      console.log('Erro ao deslogar:', error);
-    }
-  };
 
   const handleChange = text => setCodigoRastreio(text);
 
@@ -112,47 +103,50 @@ export default function HomeUsuario({ navigation, route }) {
     );
   }
 
+  const inputRastreioComponent = <Center marginBottom={400}>
+    <Box w='100%' alignItems={'center'}>
+      <Text>Digite o código do seu produto</Text>
+    </Box>
+    <Box alignItems="center">
+      <Input
+        w="100%"
+        variant={'rounded'}
+        py="0"
+        InputRightElement={<IconButton variant={'solid'} rounded={"3xl"} icon={<SearchIcon />} onPress={handleSearch} />}
+        onChangeText={handleChange}
+        placeholder="Código de Rastreio"
+        onSubmitEditing={handleSearch} />
+    </Box>
+  </Center>;
+
+
   return (
-    <Center w="100%" height="100%">
-      <Center>
-        <Box w='100%' alignItems={'center'}>
-          <Heading>Bem-Vindo, {userObject.username}</Heading>
-          <Text>Encontre seu produto</Text>
-        </Box>
-        <Box alignItems="center">
-          <Input
-            w="100%"
-            variant={'rounded'}
-            py="0"
-            InputRightElement={
-              <IconButton variant={'solid'} rounded={"3xl"} icon={<SearchIcon />} onPress={handleSearch}/>
-            }
-            onChangeText={handleChange}
-            placeholder="Código de Rastreio"
-            onSubmitEditing={handleSearch}
+    <Center>
+    {inputRastreioComponent}
+      <Center width={"50%"} height={1000}>
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossOrigin=""
           />
-        </Box>
-        <Button title="Logout" onPress={handleLogout}>Logout</Button>
-      </Center>
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-        crossOrigin=""
-      />
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"
-      />
-      {latitude != null && longitude != null && localEntrega != null && (
-        <MapContainer scrollWheelZoom={false} style={{ height: "80%", width: "80%" }}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"
           />
-          <MapComponent latitude={latitude} longitude={longitude} localEntrega={localEntrega} />
-        </MapContainer>
-      )}
+        {latitude != null && longitude != null && localEntrega != null && (
+          <MapContainer>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                />
+              <MapComponent latitude={latitude} longitude={longitude} localEntrega={localEntrega} />
+          </MapContainer>
+        )}
+        </Center>
+        <Center>
+          <Heading>TESTE</Heading>
+        </Center>
     </Center>
   );
 }

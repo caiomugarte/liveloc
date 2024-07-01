@@ -12,6 +12,10 @@ export default function Header({ navigation }) {
     navigation.navigate("Home");
   };
 
+  const handleSimulacao = () => {
+    navigation.navigate("Simulacao");
+  };
+
   return (
     <HStack
       justifyContent="space-between"
@@ -41,6 +45,11 @@ export default function Header({ navigation }) {
         <Pressable onPress={handleHome}>
           <Text fontWeight="bold" textShadow="0px 4px 4px rgba(0, 0, 0, 0.25)">
             Home
+          </Text>
+        </Pressable>
+        <Pressable onPress={handleSimulacao}>
+          <Text fontWeight="bold" textShadow="0px 4px 4px rgba(0, 0, 0, 0.25)">
+            Simulação
           </Text>
         </Pressable>
       </HStack>

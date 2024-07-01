@@ -12,6 +12,7 @@ import LoteTagueado from "./components/LoteTagueado";
 import NewHome from "./components/NewHome";
 import NewLogin from "./components/NewLogin";
 import SearchPage from "./components/SearchPage";
+import Simulacao from "./components/Simulacao";
 
 const Stack = createNativeStackNavigator();
 const TIPO_GESTOR_LOGISTICA = 1;
@@ -31,10 +32,7 @@ export default function App() {
         }
 
         const token = await AsyncStorage.getItem("token");
-        if (!token) {
-          setRotaInicial("Home");
-          return;
-        }
+        setRotaInicial("Home");
 
         const decodedToken = jwtDecode(token);
         setUserObject(decodedToken);
@@ -42,21 +40,10 @@ export default function App() {
 
         if (decodedToken.exp < currentTime) {
           setRotaInicial("Home");
-        } else {
-          await redirectUser();
         }
       } catch (error) {
         console.log("Ocorreu um erro ao pegar o token; ", error);
         setRotaInicial("Home");
-      }
-
-      async function redirectUser() {
-        const papelUsuario = await AsyncStorage.getItem("papelUsuario");
-        if (papelUsuario == TIPO_GESTOR_LOGISTICA) {
-          setRotaInicial("HomeFuncionario");
-        } else {
-          setRotaInicial("Home");
-        }
       }
     };
 
@@ -128,6 +115,11 @@ export default function App() {
               component={SearchPage}
               options={{ headerShown: false }}
             ></Stack.Screen>
+            <Stack.Screen
+              name="Simulacao"
+              component={Simulacao}
+              options={{ headerShown: false }}
+            ></Stack.Screen>
           </Stack.Navigator>
         </NavigationContainer>
       )}
@@ -136,11 +128,13 @@ export default function App() {
 }
 
 const linking = {
+  prefixes: ["http://localhost:19006"],
   config: {
     screens: {
       Home: "home",
       LoteTagueado: "lote-tagueado",
       Login: "login",
+      Simulacao: "simulacao",
     },
   },
 };

@@ -34,6 +34,7 @@ app.use("/", require("./routes/getLotes"));
 app.use("/", require("./routes/getUsuarios"));
 app.use("/", require("./routes/postAssociarFuncionario"));
 app.use("/", require("./routes/getPosicaoOfProduto"));
+app.use("/", require("./routes/simulacao"));
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

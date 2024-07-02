@@ -11,9 +11,9 @@ import Login from "./components/Login";
 import LoteTagueado from "./components/LoteTagueado";
 import NewHome from "./components/NewHome";
 import NewLogin from "./components/NewLogin";
+import Produtos from "./components/Produtos";
 import SearchPage from "./components/SearchPage";
 import Simulacao from "./components/Simulacao";
-
 const Stack = createNativeStackNavigator();
 const TIPO_GESTOR_LOGISTICA = 1;
 export default function App() {
@@ -120,6 +120,11 @@ export default function App() {
               component={Simulacao}
               options={{ headerShown: false }}
             ></Stack.Screen>
+            <Stack.Screen
+              name="produtos"
+              component={Produtos}
+              options={{ headerShown: false }}
+            ></Stack.Screen>
           </Stack.Navigator>
         </NavigationContainer>
       )}
@@ -135,6 +140,7 @@ const linking = {
       LoteTagueado: "lote-tagueado",
       Login: "login",
       Simulacao: "simulacao",
+      produtos: "produtos",
     },
   },
 };

@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { NativeBaseProvider, extendTheme } from "native-base";
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import ComecarViagem from "./components/ComeçarViagem";
 import HomeFuncionario from "./components/HomeFuncionario";
 import HomeUsuario from "./components/HomeUsuario";
 import Login from "./components/Login";
@@ -125,6 +126,11 @@ export default function App() {
               component={Produtos}
               options={{ headerShown: false }}
             ></Stack.Screen>
+            <Stack.Screen
+              name="viagem"
+              component={ComecarViagem}
+              options={{ headerShown: false }}
+            ></Stack.Screen>
           </Stack.Navigator>
         </NavigationContainer>
       )}
@@ -141,6 +147,7 @@ const linking = {
       Login: "login",
       Simulacao: "simulacao",
       produtos: "produtos",
+      viagem: "viagem",
     },
   },
 };

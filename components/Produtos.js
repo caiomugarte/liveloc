@@ -321,7 +321,7 @@ const LotSection = ({ product, onProductUpdate }) => {
   );
 };
 
-const Produtos = () => {
+const Produtos = ({ navigation }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const handleProductChange = (product) => {
@@ -336,7 +336,7 @@ const Produtos = () => {
     <NativeBaseProvider>
       <ScrollView bg="white">
         <VStack space={8} alignItems="center" w="100%" bg="#ececec" px={5}>
-          <Header />
+          <Header navigation={navigation} />
           <Text
             fontSize="48px"
             fontFamily="Plus Jakarta Sans"

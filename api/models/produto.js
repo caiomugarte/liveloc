@@ -27,7 +27,7 @@ const produtoSchema = new Schema(
     numeroLote: {
       type: String,
       ref: "Lote",
-      required: true,
+      required: false, // Alterado para não obrigatório
     },
     localEntrega: {
       latitude: {
@@ -58,14 +58,16 @@ produtoSchema.pre("save", async function (next) {
   try {
     const Lote = mongoose.model("Lote");
 
-    // Busca o documento do Lote utilizando o loteId
-    const lote = await Lote.findOne({ numeroLote: this.numeroLote });
-
-    // Se o documento do Lote for encontrado
-    if (lote) {
-      this.numeroLote = lote.numeroLote;
+    if (this.numeroLote) {
+      const lote = await Lote.findOne({ numeroLote: this.numeroLote });
+      if (lote) {
+        this.numeroLote = lote.numeroLote;
+      } else {
+        throw new Error("Lote não encontrado");
+      }
     } else {
-      throw new Error("Lote não encontrado");
+      // Permitir que numeroLote seja nulo ou vazio
+      this.numeroLote = null;
     }
 
     next();

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const Produto = require("../models/produto");
+const Lote = require("../models/lote");
 
 router.post("/api/produto", async (req, res) => {
   try {
@@ -41,6 +42,54 @@ router.get("/api/produtos", async (req, res) => {
     return res.status(500).json({
       message: "Ocorreu um erro",
     });
+  }
+});
+
+router.post("/api/produto/vincular", async (req, res) => {
+  try {
+    const { loteId, productId } = req.body;
+    const lote = await Lote.findById(loteId);
+    if (!lote) {
+      return res.status(404).json({ message: "Lote não encontrado" });
+    }
+
+    const produto = await Produto.findById(productId);
+    if (!produto) {
+      return res.status(404).json({ message: "Produto não encontrado" });
+    }
+
+    produto.numeroLote = lote.numeroLote;
+    await produto.save();
+
+    res.status(200).json({ message: "Lote vinculado ao produto com sucesso" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro ao vincular lote" });
+  }
+});
+
+router.post("/api/produto/desvincular", async (req, res) => {
+  try {
+    const { loteId } = req.body;
+    const lote = await Lote.findById(loteId);
+    if (!lote) {
+      return res.status(404).json({ message: "Lote não encontrado" });
+    }
+
+    const produto = await Produto.findOne({ numeroLote: lote.numeroLote });
+    if (!produto) {
+      return res.status(404).json({ message: "Produto não encontrado" });
+    }
+
+    produto.numeroLote = null;
+    await produto.save();
+
+    res
+      .status(200)
+      .json({ message: "Lote desvinculado do produto com sucesso" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro ao desvincular lote" });
   }
 });
 

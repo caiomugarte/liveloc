@@ -1,14 +1,15 @@
 import axios from "axios";
 import {
   Box,
+  Button,
   Center,
   CheckIcon,
   HStack,
   Image,
   NativeBaseProvider,
-  Pressable,
   ScrollView,
   Select,
+  Spinner,
   Text,
   VStack,
 } from "native-base";
@@ -26,7 +27,7 @@ const getEndereco = async ({ latitude, longitude }) => {
   }
 };
 
-const ProductSection = () => {
+const ProductSection = ({ onProductChange }) => {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [products, setProducts] = useState([]);
   const [productDetails, setProductDetails] = useState(null);
@@ -37,7 +38,6 @@ const ProductSection = () => {
         const response = await axios.get("http://localhost:8082/api/produtos");
         const data = response.data.produtos;
 
-        // Fetch address for each product
         const updatedProducts = await Promise.all(
           data.map(async (product) => {
             if (
@@ -70,6 +70,7 @@ const ProductSection = () => {
       (product) => product._id === productId
     );
     setProductDetails(selectedProductDetails);
+    onProductChange(selectedProductDetails);
   };
 
   return (
@@ -158,42 +159,179 @@ const ProductSection = () => {
   );
 };
 
-const LotSection = () => (
-  <Box
-    bg="rgba(246, 246, 246, 1)"
-    borderRadius="27px"
-    shadow={4}
-    p={6}
-    flex={1}
-  >
-    <VStack space={6}>
-      <Text fontSize="24px" fontFamily="Plus Jakarta Sans" textAlign="center">
-        Lote Associado
-      </Text>
-      {["80890", "80890"].map((number, index) => (
-        <HStack
-          key={index}
-          bg="#f6f6f6"
-          borderRadius="27px"
-          shadow={4}
-          p={4}
-          justifyContent="space-between"
-        >
-          <Text fontFamily="Plus Jakarta Sans" color="#000">
-            {number}
-          </Text>
-          <Pressable bg="#f00" borderRadius="27px" px={5} py={2}>
-            <Text color="white" fontFamily="Plus Jakarta Sans">
-              Vincular
-            </Text>
-          </Pressable>
-        </HStack>
-      ))}
-    </VStack>
-  </Box>
-);
+const LotSection = ({ product, onProductUpdate }) => {
+  const [lots, setLots] = useState([]);
+  const [loadingLotes, setLoadingLotes] = useState({});
+
+  const refreshLots = async () => {
+    if (!product) {
+      setLots([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get("http://localhost:8082/api/lotes");
+      const data = response.data.lotes;
+
+      if (product.numeroLote) {
+        const associatedLot = data.filter(
+          (lot) => lot.numeroLote === product.numeroLote
+        );
+        setLots(associatedLot);
+      } else {
+        setLots(data);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar lotes:", error);
+    }
+  };
+
+  useEffect(() => {
+    refreshLots();
+  }, [product]);
+
+  const handleLoading = (loteId, isLoading) => {
+    setLoadingLotes((prevLoading) => ({
+      ...prevLoading,
+      [loteId]: isLoading,
+    }));
+  };
+
+  const vincularLote = async (loteId, numeroLote) => {
+    handleLoading(loteId, true);
+    try {
+      await axios.post(`http://localhost:8082/api/produto/vincular`, {
+        loteId,
+        productId: product._id,
+      });
+      // Atualiza o produto localmente
+      const updatedProduct = { ...product, numeroLote: numeroLote };
+      onProductUpdate(updatedProduct);
+      await refreshLots(); // Atualiza os lotes após vinculação
+    } catch (error) {
+      console.error("Error linking lot:", error);
+    }
+    handleLoading(loteId, false);
+  };
+
+  const desvincularLote = async (loteId) => {
+    handleLoading(loteId, true);
+    try {
+      await axios.post(`http://localhost:8082/api/produto/desvincular`, {
+        loteId,
+      });
+      // Atualiza o produto localmente
+      const updatedProduct = { ...product, numeroLote: null };
+      onProductUpdate(updatedProduct);
+      await refreshLots(); // Atualiza os lotes após desvinculação
+    } catch (error) {
+      console.error("Error unlinking lot:", error);
+    }
+    handleLoading(loteId, false);
+  };
+
+  return (
+    <Box
+      bg="rgba(246, 246, 246, 1)"
+      borderRadius="27px"
+      shadow={4}
+      p={6}
+      flex={1}
+    >
+      <VStack space={6}>
+        <Text fontSize="24px" fontFamily="Plus Jakarta Sans" textAlign="center">
+          Lote Associado
+        </Text>
+        {product && product.numeroLote ? (
+          lots.length > 0 ? (
+            lots.map((lot) => (
+              <HStack
+                key={lot._id}
+                bg="#f6f6f6"
+                borderRadius="27px"
+                shadow={2}
+                p={4}
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Text
+                  fontFamily="Plus Jakarta Sans"
+                  fontSize="18px"
+                  fontWeight="bold"
+                  color="black"
+                  textAlign="left"
+                  flex={1}
+                >
+                  {lot.numeroLote}
+                </Text>
+                {loadingLotes[lot._id] ? (
+                  <Spinner color="black" />
+                ) : (
+                  <Button
+                    bg="black"
+                    _text={{ color: "white" }}
+                    onPress={() => desvincularLote(lot._id)}
+                  >
+                    Desvincular
+                  </Button>
+                )}
+              </HStack>
+            ))
+          ) : (
+            <Text>Nenhum lote associado.</Text>
+          )
+        ) : (
+          lots.length > 0 &&
+          lots.map((lot) => (
+            <HStack
+              key={lot._id}
+              bg="#f6f6f6"
+              borderRadius="27px"
+              shadow={2}
+              p={4}
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Text
+                fontFamily="Plus Jakarta Sans"
+                fontSize="18px"
+                fontWeight="bold"
+                color="black"
+                textAlign="left"
+                flex={1}
+              >
+                {lot.numeroLote}
+              </Text>
+              {loadingLotes[lot._id] ? (
+                <Spinner color="black" />
+              ) : (
+                <Button
+                  bg="red.500"
+                  _text={{ color: "white" }}
+                  onPress={() => vincularLote(lot._id, lot.numeroLote)}
+                >
+                  Vincular
+                </Button>
+              )}
+            </HStack>
+          ))
+        )}
+      </VStack>
+    </Box>
+  );
+};
 
 const Produtos = () => {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleProductChange = (product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleProductUpdate = (updatedProduct) => {
+    setSelectedProduct(updatedProduct);
+  };
+
   return (
     <NativeBaseProvider>
       <ScrollView bg="white">
@@ -208,8 +346,11 @@ const Produtos = () => {
             Gerenciamento de Lotes
           </Text>
           <HStack space={5} w="100%" maxW="1796px">
-            <ProductSection />
-            <LotSection />
+            <ProductSection onProductChange={handleProductChange} />
+            <LotSection
+              product={selectedProduct}
+              onProductUpdate={handleProductUpdate}
+            />
           </HStack>
           <Center w="100%" bg="white" py={6}>
             <Text

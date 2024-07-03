@@ -236,7 +236,7 @@ export default function Simulacao({ navigation, route }) {
           return prevIndex;
         }
       });
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);

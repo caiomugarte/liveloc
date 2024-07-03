@@ -7,14 +7,21 @@ const Lote = require("../models/lote");
 router.post("/api/produto", async (req, res) => {
   try {
     console.log(`req.body: ${req.body}`);
-    const { numeroLote, nome, localEntrega } = req.body;
+    const { numeroLote, nome, localEntrega, nomeComprador, imagemUrl } =
+      req.body;
     console.log(`Peguei o numero de lote ${numeroLote} e o nome ${nome}`);
 
     if (!(numeroLote && nome)) {
       return res.status(403).json("Número de Lote não informado");
     }
 
-    const produto = new Produto({ numeroLote, nome, localEntrega });
+    const produto = new Produto({
+      numeroLote,
+      nome,
+      localEntrega,
+      nomeComprador,
+      imagemUrl,
+    });
     await produto.save();
 
     return res.status(201).json({

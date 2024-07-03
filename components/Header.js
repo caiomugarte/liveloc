@@ -53,6 +53,10 @@ export default function Header({ navigation }) {
     navigation.navigate("viagem");
   };
 
+  const handleTeste = () => {
+    navigation.navigate("teste");
+  };
+
   return (
     <HStack
       justifyContent="space-between"
@@ -87,6 +91,11 @@ export default function Header({ navigation }) {
         <Pressable onPress={handleSimulacao}>
           <Text fontWeight="bold" textShadow="0px 4px 4px rgba(0, 0, 0, 0.25)">
             Simulação
+          </Text>
+        </Pressable>
+        <Pressable onPress={handleTeste}>
+          <Text fontWeight="bold" textShadow="0px 4px 4px rgba(0, 0, 0, 0.25)">
+            Teste
           </Text>
         </Pressable>
         {isLoggedIn && userType === "1" && (

@@ -6,6 +6,7 @@ import { NativeBaseProvider, extendTheme } from "native-base";
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import ComecarViagem from "./components/ComeçarViagem";
+import Home from "./components/Home";
 import HomeFuncionario from "./components/HomeFuncionario";
 import HomeUsuario from "./components/HomeUsuario";
 import Login from "./components/Login";
@@ -131,6 +132,11 @@ export default function App() {
               component={ComecarViagem}
               options={{ headerShown: false }}
             ></Stack.Screen>
+            <Stack.Screen
+              name="teste"
+              component={Home}
+              options={{ headerShown: false }}
+            ></Stack.Screen>
           </Stack.Navigator>
         </NavigationContainer>
       )}
@@ -148,6 +154,7 @@ const linking = {
       Simulacao: "simulacao",
       produtos: "produtos",
       viagem: "viagem",
+      teste: "teste",
     },
   },
 };

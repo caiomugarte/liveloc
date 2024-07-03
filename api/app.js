@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "http://localhost:19006",
+    origin: "*",
   })
 );
 app.get("/", (req, res) => {
